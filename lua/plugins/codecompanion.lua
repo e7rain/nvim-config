@@ -1,18 +1,8 @@
 return {
   'olimorris/codecompanion.nvim',
   event = 'VeryLazy',
-  opts = {},
-
-  keys = {
-    {
-      '<leader>aa',
-      '<cmd>CodeCompanionChat<cr>',
-      desc = 'Codecompanion chat',
-    },
-  },
   dependencies = {
     'nvim-lua/plenary.nvim',
-    'nvim-treesitter/nvim-treesitter',
     {
       'ravitemer/mcphub.nvim',
       dependencies = {
@@ -20,10 +10,32 @@ return {
       },
       build = 'npm install -g mcp-hub@latest',
       config = function()
-        require('mcphub').setup {}
+        require('mcphub').setup {
+          global_env = {
+            -- vtex mcp
+            'BASE_URL',
+            'APP_KEY',
+            'APP_TOKEN',
+          },
+        }
       end,
     },
     'franco-ruggeri/codecompanion-spinner.nvim',
+  },
+  opts = {},
+
+  keys = {
+    {
+      '<leader>aa',
+      mode = 'n',
+      '<cmd>CodeCompanionChat Toggle<cr>',
+      desc = 'Codecompanion chat',
+    },
+    {
+      '<leader>aa',
+      '<cmd>CodeCompanionChat Add<cr>',
+      mode = 'v',
+    },
   },
   config = function()
     -- Parse bedrock streaming response into format expected by regular anthropic adapter

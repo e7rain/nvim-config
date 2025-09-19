@@ -6,9 +6,12 @@ return {
         {
           'igorlfs/nvim-dap-view',
           opts = {
+            switchbuf = 'useopen',
+            auto_toggle = true,
             winbar = {
               default_section = 'scopes',
             },
+
             windows = {
               terminal = {
                 hide = { 'pwa-node' },
@@ -24,8 +27,8 @@ return {
     },
     config = function()
       vim.keymap.set('n', '<leader>db', require('dap').toggle_breakpoint, { desc = 'toggle breakpoint' })
-      vim.keymap.set('n', '<leader>dd', require('dap').continue, { desc = 'debugging debug' })
-      vim.keymap.set('n', '<leader>dc', require('dap').run_to_cursor, { desc = 'run to cursor' })
+      vim.keymap.set('n', '<leader>dc', require('dap').continue, { desc = 'debugging debug' })
+      vim.keymap.set('n', '<leader>dC', require('dap').run_to_cursor, { desc = 'run to cursor' })
       vim.keymap.set('n', '<leader>dt', require('dap').terminate, { desc = 'debug terminate' })
       vim.keymap.set('n', '<leader>dr', '<cmd>DapViewJump repl<CR>', { desc = 'debug repl toggle' })
       vim.keymap.set('n', '<leader>du', require('dap-view').toggle, { desc = 'Toggle nvim-dap-view' })
@@ -40,9 +43,9 @@ return {
         require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: ')
       end, { desc = 'breakpoint condition' })
 
-      vim.fn.sign_define('DapStopped', { text = ' ', texthl = 'DapStopped' })
-      vim.fn.sign_define('DapBreakpoint', { text = ' ', texthl = 'DapBreakpoint' })
-      vim.fn.sign_define('DapBreakpointRejected', { text = ' ', texthl = 'DapBreakpointCondition' })
+      vim.fn.sign_define('DapStopped', { text = '', texthl = 'DapStopped' })
+      vim.fn.sign_define('DapBreakpoint', { text = '', texthl = 'DapBreakpoint' })
+      vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = 'DapBreakpointCondition' })
       vim.fn.sign_define('DapBreakpointCondition', { text = '', texthl = 'DapBreakpointCondition' })
       vim.fn.sign_define('DapLogPoint', { text = '', texthl = 'DapLogPoint' })
 
@@ -146,10 +149,11 @@ return {
         {
           type = 'pwa-node',
           request = 'launch',
-          name = 'Launch with tsx',
+          name = 'Launch file with tsx',
           cwd = '${workspaceFolder}',
-          runtimeExecutable = 'tsx',
+          runtimeExecutable = 'pnpx',
           args = {
+            'tsx',
             '${file}',
           },
           sourceMaps = true,
@@ -174,7 +178,7 @@ return {
             '${workspaceFolder}/**',
             '!**/node_modules/**',
           },
-          name = 'Launch file',
+          name = 'Launch',
           program = '${file}',
           cwd = '${workspaceFolder}',
         },

@@ -17,7 +17,44 @@ return {
         border = 'solid',
       },
     },
-    bigfile = { enabled = true },
+    bigfile = {
+      enabled = true,
+      notify = true, -- show notification when big file detected
+      size = 1.5 * 1024 * 1024, -- 1.5MB
+      line_length = 1000, -- average line length (useful for minified files)
+      -- Enable or disable features when big file detected
+      ---@param ctx {buf: number, ft:string}
+      setup = function(ctx)
+        vim.api.nvim_create_autocmd({ 'LspAttach' }, {
+          buffer = buf,
+          callback = function(args)
+            vim.schedule(function()
+              vim.lsp.buf_detach_client(buf, args.data.client_id)
+            end)
+          end,
+        })
+
+        if vim.fn.exists ':NoMatchParen' ~= 0 then
+          vim.cmd [[NoMatchParen]]
+        end
+        Snacks.util.wo(0, { foldmethod = 'manual', statuscolumn = '', conceallevel = 0 })
+        vim.b.minianimate_disable = true
+        vim.schedule(function()
+          if vim.api.nvim_buf_is_valid(ctx.buf) then
+            vim.bo[ctx.buf].syntax = ctx.ft
+          end
+        end)
+
+        -- Disable supermaven suggestions with delay
+        local function setup_after_plugin()
+          if pcall(require, 'plugin-name') then
+            vim.cmd 'SupermavenStop'
+          else
+            vim.defer_fn(setup_after_plugin, 500)
+          end
+        end
+      end,
+    },
     input = { enabled = true },
     lazygit = { enabled = true },
     notifier = {

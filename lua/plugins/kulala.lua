@@ -6,6 +6,7 @@ vim.filetype.add {
 
 return {
   'mistweaverco/kulala.nvim',
+  ft = { 'http', 'rest' },
   keys = {
     {
       '<leader>rr',
@@ -50,7 +51,6 @@ return {
       desc = 'Clear cache files',
     },
   },
-  ft = { 'http', 'rest' },
   opts = {
     lsp = {
       filetypes = { 'http', 'rest', 'json', 'yaml', 'javascript' },
@@ -66,8 +66,8 @@ return {
       icons = {
         inlay = {
           loading = '󰔟 ',
-          done = ' ',
-          error = ' ',
+          done = '󰞑 ',
+          error = ' ',
         },
 
         lualine = '🐼',

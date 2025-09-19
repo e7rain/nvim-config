@@ -2,11 +2,14 @@ return { -- Collection of various small independent plugins/modules
   'echasnovski/mini.nvim',
   config = function()
     vim.keymap.set('n', '-', function()
-      local files = require 'mini.files'
-      if not files.close() then
-        files.open(vim.fn.expand '%')
+      local MiniFiles = require 'mini.files'
+      if not MiniFiles.close() then
+        local buf_name = vim.api.nvim_buf_get_name(0)
+        local path = vim.fn.filereadable(buf_name) == 1 and buf_name or vim.fn.getcwd()
+        MiniFiles.open(path)
       end
-      files.reveal_cwd()
+
+      MiniFiles.reveal_cwd()
     end, { desc = 'open directory' })
 
     -- Mini files
@@ -28,25 +31,25 @@ return { -- Collection of various small independent plugins/modules
       vim.keymap.set('n', lhs, rhs, { buffer = buf_id, desc = desc })
     end
 
-    vim.api.nvim_create_autocmd('User', {
-      pattern = 'MiniFilesWindowOpen',
-      callback = function(args)
-        local win_id = args.data.win_id
-
-        -- Customize window-local settings
-        -- vim.wo[win_id].winblend = 10
-        local config = vim.api.nvim_win_get_config(win_id)
-        -- config.border = 'solid'
-        vim.api.nvim_win_set_config(win_id, config)
-      end,
-    })
+    -- vim.api.nvim_create_autocmd('User', {
+    --   pattern = 'MiniFilesWindowOpen',
+    --   callback = function(args)
+    --     local win_id = args.data.win_id
+    --
+    --     -- Customize window-local settings
+    --     -- vim.wo[win_id].winblend = 10
+    --     local config = vim.api.nvim_win_get_config(win_id)
+    --     -- config.border = 'solid'
+    --     vim.api.nvim_win_set_config(win_id, config)
+    --   end,
+    -- })
 
     vim.api.nvim_create_autocmd('User', {
       pattern = 'MiniFilesBufferCreate',
       callback = function(args)
         local buf_id = args.data.buf_id
-        map_split(buf_id, '<c-s>', 'belowright vertical')
-        map_split(buf_id, '<c-x>', 'belowright horizontal')
+        map_split(buf_id, '<c-v>', 'belowright vertical')
+        map_split(buf_id, '<c-s>', 'belowright horizontal')
         vim.keymap.set('n', '<esc>', files.close, { buffer = buf_id, desc = 'Close explorer' })
         vim.keymap.set('i', '<C-h>', '<Left>', { buffer = buf_id })
         vim.keymap.set('i', '<C-j>', '<Down>', { buffer = buf_id })

@@ -8,7 +8,7 @@ return {
       'antoinemadec/FixCursorHold.nvim',
       'nvim-treesitter/nvim-treesitter',
       'nvim-neotest/neotest-jest',
-      'nvim-neotest/neotest-go',
+      { 'fredrikaverpil/neotest-golang', version = '*' },
       'Issafalcon/neotest-dotnet',
     },
     config = function()
@@ -48,7 +48,6 @@ return {
           watching = '',
         },
         adapters = {
-          require 'neotest-go',
           require 'neotest-jest' {
             -- jestCommand = "npm test --",
             -- jestConfigFile = "custom.jest.config.ts",
@@ -58,6 +57,7 @@ return {
             end,
           },
           require 'neotest-dotnet',
+          require 'neotest-golang',
         },
         -- status = { virtual_text = true },
         -- output = { open_on_run = true },

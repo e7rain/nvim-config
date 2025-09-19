@@ -12,7 +12,14 @@ vim.o.smartindent = true
 vim.o.tabstop = 2
 vim.o.softtabstop = 2
 
-vim.opt.fillchars = { eob = ' ' }
+vim.opt.fillchars = {
+  foldopen = '',
+  foldclose = '',
+  fold = ' ',
+  foldsep = ' ',
+  eob = ' ', -- Don't show ~ at end of buffer
+  diff = ' ', -- Nicer delete lines in DiffView
+}
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -110,6 +117,18 @@ vim.opt.foldlevelstart = 99
 vim.opt.foldnestmax = 4
 
 vim.g.disable_autoformat = false
+
+-- Don't always keep splits the same size.
+-- Commenting out while I try out setting winfixwidth/winfixheight
+-- vim.o.equalalways = false
+
+-- Set better diffopt defaults
+-- https://www.reddit.com/r/neovim/comments/1myfvla/comment/nad22ts/
+if vim.fn.has 'nvim-0.12' == 1 then
+  vim.o.diffopt = 'internal,filler,closeoff,algorithm:patience,indent-heuristic,inline:char,linematch:40'
+elseif vim.fn.has 'nvim-0.11' == 1 then
+  vim.o.diffopt = 'internal,filler,closeoff,algorithm:patience,indent-heuristic,linematch:40'
+end
 
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
@@ -357,7 +376,7 @@ require('lazy').setup({
               ['<c-k>'] = actions.move_selection_previous,
               ['<c-h>'] = 'which_key',
               ['<c-d>'] = actions.delete_buffer,
-              ['<c-s>'] = actions.select_vertical,
+              ['<c-s>'] = actions.select_horizontal,
             },
           },
         },
@@ -1095,25 +1114,27 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'lazydev', 'tmux' },
+        default = {
+          'lsp',
+          'path',
+          'buffer',
+          'snippets',
+          'lazydev',
+          'tmux',
+        },
         providers = {
-          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          snippets = { score_offset = 95 },
+          lsp = { score_offset = 100 },
+          path = { score_offset = 70 },
+          buffer = { score_offset = 80 },
+          lazydev = { module = 'lazydev.integrations.blink', score_offset = 50 },
           tmux = {
             module = 'blink-cmp-tmux',
             name = 'tmux',
-            -- default options
-            opts = {
-              all_panes = false,
-              capture_history = false,
-              -- only suggest completions from `tmux` if the `trigger_chars` are
-              -- used
-              triggered_only = false,
-              trigger_chars = { '.' },
-            },
+            score_offset = 30,
           },
         },
       },
-
       snippets = { preset = 'luasnip' },
 
       -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
@@ -1123,7 +1144,15 @@ require('lazy').setup({
       -- the rust implementation via `'prefer_rust_with_warning'`
       --
       -- See :h blink-cmp-config-fuzzy for more information
-      fuzzy = { implementation = 'prefer_rust' },
+      fuzzy = {
+        implementation = 'prefer_rust',
+
+        sorts = {
+          'score', -- Primary sort: by fuzzy matching score
+          'sort_text', -- Secondary sort: by sortText field if scores are equal
+          'label', -- Tertiary sort: by label if still tied
+        },
+      },
 
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
@@ -1131,15 +1160,38 @@ require('lazy').setup({
   },
 
   {
-    'vague2k/vague.nvim',
+    'EdenEast/nightfox.nvim',
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other plugins
+    config = function()
+      require('nightfox').setup {
+        options = {
+          styles = {
+            comments = 'italic',
+            keywords = 'bold',
+            types = 'italic',
+          },
+        },
+      }
+    end,
+  },
+
+  {
+    'rose-pine/neovim',
+    config = function()
+      require('rose-pine').setup {}
+
+      vim.cmd [[colorscheme rose-pine-moon]]
+    end,
+  },
+
+  {
+    'vague2k/vague.nvim',
     config = function()
       -- NOTE: you do not need to call setup if you don't want to.
       require('vague').setup {
         -- optional configuration here
       }
-      vim.cmd 'colorscheme vague'
     end,
   },
 
@@ -1251,6 +1303,8 @@ require('lazy').setup({
   require 'plugins.neovim-project',
   require 'plugins.flash',
   -- require 'plugins.quickmatch',
+  -- Golang support
+  require 'plugins.gopher-nvim',
 
   -- Node.js support, javascript, typescript, etc.
   require 'plugins.package-info',
