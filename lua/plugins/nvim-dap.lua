@@ -3,19 +3,17 @@ return {
     'mfussenegger/nvim-dap',
     dependencies = {
       {
-        {
-          'igorlfs/nvim-dap-view',
-          opts = {
-            switchbuf = 'useopen',
-            auto_toggle = true,
-            winbar = {
-              default_section = 'scopes',
-            },
+        'igorlfs/nvim-dap-view',
+        opts = {
+          switchbuf = 'useopen',
+          auto_toggle = true,
+          winbar = {
+            default_section = 'scopes',
+          },
 
-            windows = {
-              terminal = {
-                hide = { 'pwa-node' },
-              },
+          windows = {
+            terminal = {
+              hide = { 'pwa-node' },
             },
           },
         },
@@ -24,6 +22,7 @@ return {
         'theHamsta/nvim-dap-virtual-text',
         opts = {},
       },
+      'leoluz/nvim-dap-go',
     },
     config = function()
       vim.keymap.set('n', '<leader>db', require('dap').toggle_breakpoint, { desc = 'toggle breakpoint' })
@@ -112,6 +111,7 @@ return {
       }
 
       -- Golang
+      require('dap-go').setup()
 
       local config_chrome_debug = {
         {
@@ -209,13 +209,5 @@ return {
         dap.configurations[filetype] = vim.list_extend(dap.configurations[filetype] or {}, config_chrome_debug)
       end
     end,
-  },
-  {
-    'leoluz/nvim-dap-go',
-    ft = 'go',
-    dependencies = {
-      'mfussenegger/nvim-dap',
-    },
-    opts = {},
   },
 }

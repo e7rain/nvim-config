@@ -5,6 +5,13 @@ return {
     'nvim-lua/plenary.nvim',
     {
       'ravitemer/mcphub.nvim',
+
+      keys = { {
+        '<leader>am',
+        mode = 'n',
+        '<cmd>MCPHub<cr>',
+        desc = 'MCPHub',
+      } },
       dependencies = {
         'nvim-lua/plenary.nvim',
       },

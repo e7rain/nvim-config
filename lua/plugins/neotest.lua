@@ -1,15 +1,25 @@
 return {
   {
     'nvim-neotest/neotest',
-    version = 'v5.9.1',
+    -- version = 'v5.9.1',
     dependencies = {
       'nvim-neotest/nvim-nio',
       'nvim-lua/plenary.nvim',
       'antoinemadec/FixCursorHold.nvim',
       'nvim-treesitter/nvim-treesitter',
       'nvim-neotest/neotest-jest',
-      { 'fredrikaverpil/neotest-golang', version = '*' },
-      'Issafalcon/neotest-dotnet',
+      {
+        'fredrikaverpil/neotest-golang',
+        version = '1.15.1', -- Optional, but recommended
+        dependencies = {
+          'leoluz/nvim-dap-go',
+          opts = {},
+        },
+        build = function()
+          vim.system({ 'go', 'install', 'gotest.tools/gotestsum@latest' }):wait() -- Optional, but recommended
+        end,
+      },
+      'nsidorenco/neotest-vstest',
     },
     config = function()
       local neotest_ns = vim.api.nvim_create_namespace 'neotest'
@@ -56,8 +66,10 @@ return {
               return vim.fn.getcwd()
             end,
           },
-          require 'neotest-dotnet',
-          require 'neotest-golang',
+          require 'neotest-vstest',
+          require 'neotest-golang' {
+            runner = 'gotestsum',
+          },
         },
         -- status = { virtual_text = true },
         -- output = { open_on_run = true },
@@ -68,7 +80,6 @@ return {
           end,
         },
       }
-      require 'neotest-dotnet'
 
       local map = vim.keymap.set
       map('n', '<leader>tt', require('neotest').run.run, { desc = 'Test file' })
@@ -84,13 +95,5 @@ return {
       map('n', '[t', require('neotest').jump.prev, { desc = 'Jump prev test' })
       map('n', ']t', require('neotest').jump.next, { desc = 'Jump next test' })
     end,
-  },
-
-  {
-    'Issafalcon/neotest-dotnet',
-    lazy = false,
-    dependencies = {
-      'nvim-neotest/neotest',
-    },
   },
 }
