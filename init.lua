@@ -132,6 +132,15 @@ elseif vim.fn.has 'nvim-0.11' == 1 then
   vim.o.diffopt = 'internal,filler,closeoff,algorithm:patience,indent-heuristic,linematch:40'
 end
 
+-- Support php in blade file
+vim.filetype.add {
+  pattern = {
+    ['.*%.blade%.php'] = 'php',
+  },
+}
+
+-- Autcommands
+
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.hl.on_yank()`
@@ -195,6 +204,21 @@ vim.api.nvim_create_autocmd('User', {
     vim.cmd 'stopinsert'
   end,
 })
+
+-- vim.api.nvim_create_autocmd('User', {
+--   pattern = 'BlinkCmpMenuOpen',
+--   callback = function()
+--     require('copilot.suggestion').dismiss()
+--     vim.b.copilot_suggestion_hidden = true
+--   end,
+-- })
+--
+-- vim.api.nvim_create_autocmd('User', {
+--   pattern = 'BlinkCmpMenuClose',
+--   callback = function()
+--     vim.b.copilot_suggestion_hidden = false
+--   end,
+-- })
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -851,67 +875,6 @@ require('lazy').setup({
         cmd = { 'pyrefly', 'lsp' },
       })
 
-      -- tailwindcss
-      vim.lsp.config('tailwindcss', {
-        root_dir = function(fname)
-          local root_pattern = require('lspconfig').util.root_pattern
-
-          -- First, check for common Tailwind config files
-          local root = root_pattern(
-            'tailwind.config.mjs',
-            'tailwind.config.cjs',
-            'tailwind.config.js',
-            'tailwind.config.ts',
-            'postcss.config.js',
-            'config/tailwind.config.js',
-            'assets/tailwind.config.js'
-          )(fname)
-          -- If not found, check for package.json dependencies
-          if not root then
-            local package_root = root_pattern 'package.json'(fname)
-            if package_root then
-              local package_data = require('utils').decode_json_file(package_root .. '/package.json')
-              if
-                package_data
-                and (
-                  require('utils').has_nested_key(package_data, 'dependencies', 'tailwindcss')
-                  or require('utils').has_nested_key(package_data, 'devDependencies', 'tailwindcss')
-                )
-              then
-                root = package_root
-              end
-            end
-          end
-          return root
-        end,
-      })
-
-      -- emmet
-      vim.lsp.config('emmet_ls', {
-        filetypes = {
-          'css',
-          'eruby',
-          'html',
-          'javascript',
-          'javascriptreact',
-          'less',
-          'sass',
-          'scss',
-          'svelte',
-          'pug',
-          'typescriptreact',
-          'vue',
-        },
-        init_options = {
-          html = {
-            options = {
-              -- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
-              ['bem.enabled'] = true,
-            },
-          },
-        },
-      })
-
       vim.lsp.config('roslyn', {
         settings = {
           ['csharp|inlay_hints'] = {
@@ -924,13 +887,9 @@ require('lazy').setup({
         },
       })
 
-      vim.lsp.config('roslyn_ls', {
-        cmd = {
-          'roslyn',
-          '--logLevel=Information',
-          '--extensionLogDirectory=' .. vim.fs.dirname(vim.lsp.log.get_filename()),
-          '--stdio',
-        },
+      -- html
+      vim.lsp.config('html', {
+        filetypes = { 'blade', 'php', 'html' },
       })
 
       -- graphql
@@ -969,6 +928,30 @@ require('lazy').setup({
         },
       })
 
+      vim.lsp.config('emmet-language-server', {
+        cmd = { 'emmet-language-server', '--stdio' },
+        filetypes = {
+          'astro',
+          'css',
+          'eruby',
+          'html',
+          'htmlangular',
+          'htmldjango',
+          'javascriptreact',
+          'less',
+          'pug',
+          'sass',
+          'blade',
+          'php',
+          'scss',
+          'svelte',
+          'templ',
+          'typescriptreact',
+          'vue',
+        },
+        root_markers = { '.git' },
+      })
+
       vim.lsp.enable {
         'lua_ls',
         'rust_analyzer',
@@ -980,12 +963,12 @@ require('lazy').setup({
         'clangd',
         'pyrefly',
         'tailwindcss',
-        'emmet_ls',
+        'emmet-language-server',
         'graphql',
         'html',
         'cssls',
         'roslyn',
-        -- 'roslyn_ls',
+        'phpactor',
       }
     end,
   },
@@ -1032,6 +1015,8 @@ require('lazy').setup({
         javascriptreact = { 'eslint', 'prettierd', stop_after_first = true },
         graphql = { 'prettierd', stop_after_first = true },
         cs = { 'csharpier' },
+        blade = { 'blade-formatter' },
+        php = { 'php_cs_fixer' },
       },
       formatters = {
         csharpier = {
@@ -1084,6 +1069,11 @@ require('lazy').setup({
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
     opts = {
+      cmdline = {
+        enabled = true,
+        keymap = { preset = 'inherit' },
+        completion = { menu = { auto_show = true } },
+      },
       keymap = {
         -- 'default' (recommended) for mappings similar to built-in completions
         --   <c-y> to accept ([y]es) the completion.
@@ -1122,6 +1112,28 @@ require('lazy').setup({
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
         documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        menu = {
+          draw = {
+            components = {
+              kind_icon = {
+                text = function(ctx)
+                  local kind_icon, _, _ = require('mini.icons').get('lsp', ctx.kind)
+                  return kind_icon
+                end,
+                highlight = function(ctx)
+                  local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
+                  return hl
+                end,
+              },
+              kind = {
+                highlight = function(ctx)
+                  local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
+                  return hl
+                end,
+              },
+            },
+          },
+        },
       },
 
       sources = {
@@ -1168,65 +1180,79 @@ require('lazy').setup({
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
     },
+    -- config = function(_, opts)
+    -- end,
   },
 
   {
-    'lucasadelino/conifer.nvim',
-    priority = 1000,
+    'nendix/zen.nvim',
     lazy = false,
-    opts = {
-      transparent = false,
-    },
+    priority = 1000,
+
     config = function()
-      require('conifer').setup {
+      require('zen').setup {
+        variant = 'light',
+        undercurl = true,
         transparent = false,
+        dimInactive = false,
+        terminalColors = true,
+        commentStyle = { italic = true },
+        functionStyle = {},
+        keywordStyle = { bold = true, italic = false },
+        statementStyle = {},
+        typeStyle = {},
+        compile = true,
+        colors = {
+          palette = {}, -- override palette colors
+          theme = {}, -- override theme colors
+        },
+        overrides = function(colors)
+          return {}
+        end,
       }
-      -- vim.cmd [[colorscheme conifer-solar]]
     end,
   },
 
   {
-    'EdenEast/nightfox.nvim',
+    'vague-theme/vague.nvim',
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other plugins
     config = function()
-      require('nightfox').setup {
-        options = {
-          styles = {
-            comments = 'italic',
-            keywords = 'bold',
-            types = 'italic',
-          },
-        },
+      -- NOTE: you do not need to call setup if you don't want to.
+      require('vague').setup {
+        -- optional configuration here
       }
-    end,
-  },
-  {
-    'AlexvZyl/nordic.nvim',
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require('nordic').load {
-        bold_keywords = false,
-        -- Enable italic comments.
-        italic_comments = true,
-      }
+
+      vim.cmd [[colorscheme vague]]
     end,
   },
 
   -- {
-  --   'rose-pine/neovim',
+  --   'EdenEast/nightfox.nvim',
+  --   lazy = false, -- make sure we load this during startup if it is your main colorscheme
+  --   priority = 1000, -- make sure to load this before all the other plugins
   --   config = function()
-  --     require('rose-pine').setup {}
+  --     require('nightfox').setup {
+  --       options = {
+  --         styles = {
+  --           comments = 'italic',
+  --           keywords = 'bold',
+  --           types = 'italic',
+  --         },
+  --       },
+  --     }
   --   end,
   -- },
-  --
+
   -- {
-  --   'vague2k/vague.nvim',
+  --   'AlexvZyl/nordic.nvim',
+  --   lazy = false,
+  --   priority = 1000,
   --   config = function()
-  --     -- NOTE: you do not need to call setup if you don't want to.
-  --     require('vague').setup {
-  --       -- optional configuration here
+  --     require('nordic').load {
+  --       bold_keywords = true,
+  --       -- Enable italic comments.
+  --       italic_comments = true,
   --     }
   --   end,
   -- },
@@ -1334,16 +1360,19 @@ require('lazy').setup({
   require 'plugins.nvim-dap',
   require 'plugins.trouble',
   require 'plugins.snacks',
-  require 'plugins.supermaven',
   require 'plugins.codecompanion',
   require 'plugins.neovim-project',
-  require 'plugins.flash',
+  -- require 'plugins.flash',
+  -- require 'plugins.minuet-ai',
   -- require 'plugins.quickmatch',
   -- Golang support
   require 'plugins.gopher-nvim',
 
   -- Node.js support, javascript, typescript, etc.
   require 'plugins.package-info',
+
+  require 'plugins.nvim-colorizer',
+  require 'plugins.copilot',
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the

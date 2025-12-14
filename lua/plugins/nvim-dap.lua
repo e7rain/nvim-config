@@ -42,9 +42,9 @@ return {
         require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: ')
       end, { desc = 'breakpoint condition' })
 
-      vim.fn.sign_define('DapStopped', { text = '', texthl = 'DapStopped' })
-      vim.fn.sign_define('DapBreakpoint', { text = '', texthl = 'DapBreakpoint' })
-      vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = 'DapBreakpointCondition' })
+      vim.fn.sign_define('DapStopped', { text = '', texthl = 'Error' })
+      vim.fn.sign_define('DapBreakpoint', { text = '󰯰', texthl = 'Info' })
+      vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = 'DapBreakpointCondition' })
       vim.fn.sign_define('DapBreakpointCondition', { text = '', texthl = 'DapBreakpointCondition' })
       vim.fn.sign_define('DapLogPoint', { text = '', texthl = 'DapLogPoint' })
 
@@ -109,9 +109,6 @@ return {
           end,
         },
       }
-
-      -- Golang
-      require('dap-go').setup()
 
       local config_chrome_debug = {
         {

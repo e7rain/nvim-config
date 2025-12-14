@@ -67,7 +67,7 @@ return {
         -- Disable supermaven suggestions with delay
         local function setup_after_plugin()
           if pcall(require, 'plugin-name') then
-            vim.cmd 'SupermavenStop'
+            -- vim.cmd 'SupermavenStop'
           else
             vim.defer_fn(setup_after_plugin, 500)
           end
@@ -194,17 +194,6 @@ return {
         Snacks.toggle.dim():map '<leader>uD'
         Snacks.toggle.zoom():map '<leader>uZ'
         Snacks.toggle.zen():map '<leader>uz'
-
-        Snacks.toggle({
-          name = 'Suggestions AI',
-          get = function()
-            return require('supermaven-nvim.api').is_running()
-          end,
-          set = function(state)
-            vim.cmd('Supermaven' .. (state and 'Start' or 'Stop'))
-          end,
-        }):map '<leader>ua'
-
         Snacks.toggle({
           name = 'Autoformat',
           get = function()

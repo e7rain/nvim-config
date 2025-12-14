@@ -65,7 +65,9 @@ return { -- Collection of various small independent plugins/modules
       end,
     })
 
-    -- require('mini.jump').setup {}
+    -- require('mini.pick').setup {}
+    require('mini.splitjoin').setup {}
+    require('mini.icons').setup {}
     require('mini.files').setup {
 
       -- Customization of shown content
