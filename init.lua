@@ -18,7 +18,7 @@ vim.opt.fillchars = {
   fold = ' ',
   foldsep = ' ',
   eob = ' ', -- Don't show ~ at end of buffer
-  diff = ' ', -- Nicer delete lines in DiffView
+  diff = '╱', -- Nicer delete lines in DiffView
 }
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
@@ -109,8 +109,8 @@ vim.o.relativenumber = true
 
 vim.o.swapfile = false
 
-vim.opt.foldmethod = 'expr'
-vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+-- vim.opt.foldmethod = 'expr'
+-- vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 vim.opt.foldcolumn = '0'
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 99
@@ -1003,7 +1003,7 @@ require('lazy').setup({
         end
       end,
       formatters_by_ft = {
-        go = { 'goimports', lsp_format = 'last' },
+        go = { 'goimports', 'gofmt', lsp_format = 'last' },
         python = { 'black', lsp_format = 'last' },
         lua = { 'stylua' },
         css = { 'eslint', 'prettierd', stop_after_first = true },
@@ -1015,8 +1015,10 @@ require('lazy').setup({
         javascriptreact = { 'eslint', 'prettierd', stop_after_first = true },
         graphql = { 'prettierd', stop_after_first = true },
         cs = { 'csharpier' },
+        sql = { 'sqlformat' },
         blade = { 'blade-formatter' },
         php = { 'php_cs_fixer' },
+        xml = { 'xmlformat' },
       },
       formatters = {
         csharpier = {
@@ -1040,7 +1042,7 @@ require('lazy').setup({
       -- Snippet Engine
       {
         'L3MON4D3/LuaSnip',
-        version = '2.*',
+        version = 'v2.*',
         build = (function()
           -- Build Step is needed for regex support in snippets.
           -- This step is not supported in many windows environments.
@@ -1140,21 +1142,22 @@ require('lazy').setup({
         default = {
           'lsp',
           'path',
-          'buffer',
           'snippets',
+          'buffer',
           'lazydev',
           'tmux',
         },
         providers = {
           lsp = { score_offset = 10 },
           path = { score_offset = 9 },
-          snippets = { score_offset = 9, min_keyword_length = 2 },
-          buffer = { score_offset = 8 },
-          lazydev = { module = 'lazydev.integrations.blink', score_offset = 7 },
+          -- snippets = { score_offset = 9, min_keyword_length = 2 },
+          snippets = { score_offset = 11 },
+          buffer = { score_offset = 7 },
+          lazydev = { module = 'lazydev.integrations.blink', score_offset = 6 },
           tmux = {
             module = 'blink-cmp-tmux',
             name = 'tmux',
-            score_offset = 6,
+            score_offset = 5,
           },
         },
       },
@@ -1185,156 +1188,72 @@ require('lazy').setup({
   },
 
   {
-    'nendix/zen.nvim',
-    lazy = false,
-    priority = 1000,
-
+    'oskarnurm/koda.nvim',
+    -- lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    -- priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
-      require('zen').setup {
-        variant = 'light',
-        undercurl = true,
-        transparent = false,
-        dimInactive = false,
-        terminalColors = true,
-        commentStyle = { italic = true },
-        functionStyle = {},
-        keywordStyle = { bold = true, italic = false },
-        statementStyle = {},
-        typeStyle = {},
-        compile = true,
-        colors = {
-          palette = {}, -- override palette colors
-          theme = {}, -- override theme colors
+      require('koda').setup {
+        styles = {
+          comments = { italic = true },
         },
-        overrides = function(colors)
-          return {}
-        end,
       }
+      -- vim.cmd 'colorscheme koda'
     end,
   },
+  -- { 'catppuccin/nvim', name = 'catppuccin', priority = 1000 },
 
   {
     'vague-theme/vague.nvim',
-    lazy = false, -- make sure we load this during startup if it is your main colorscheme
-    priority = 1000, -- make sure to load this before all the other plugins
+    -- lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    -- priority = 1000, -- make sure to load this before all the other plugins
     config = function()
       -- NOTE: you do not need to call setup if you don't want to.
       require('vague').setup {
         -- optional configuration here
       }
 
-      vim.cmd [[colorscheme vague]]
+      -- vim.cmd [[colorscheme vague]]
     end,
   },
 
-  -- {
-  --   'EdenEast/nightfox.nvim',
-  --   lazy = false, -- make sure we load this during startup if it is your main colorscheme
-  --   priority = 1000, -- make sure to load this before all the other plugins
-  --   config = function()
-  --     require('nightfox').setup {
-  --       options = {
-  --         styles = {
-  --           comments = 'italic',
-  --           keywords = 'bold',
-  --           types = 'italic',
-  --         },
-  --       },
-  --     }
-  --   end,
-  -- },
+  {
+    'AlexvZyl/nordic.nvim',
+    -- lazy = false,
+    -- priority = 1000,
+    config = function()
+      -- require('nordic').load()
+    end,
+  },
 
-  -- {
-  --   'AlexvZyl/nordic.nvim',
-  --   lazy = false,
-  --   priority = 1000,
-  --   config = function()
-  --     require('nordic').load {
-  --       bold_keywords = true,
-  --       -- Enable italic comments.
-  --       italic_comments = true,
-  --     }
-  --   end,
-  -- },
+  {
+    'everviolet/nvim',
+    lazy = false,
+    name = 'evergarden',
+    priority = 1000, -- Colorscheme plugin is loaded first before any other plugins
+    opts = {
+      theme = {
+        variant = 'winter', -- 'winter'|'fall'|'spring'|'summer'
+        accent = 'green',
+      },
+      editor = {
+        transparent_background = false,
+        -- sign = { color = 'none' },
+        -- float = {
+        --   color = 'mantle',
+        --   solid_border = false,
+        -- },
+        -- completion = {
+        --   color = 'surface0',
+        -- },
+      },
+    },
+    config = function()
+      vim.cmd [[colorscheme evergarden-winter]]
+    end,
+  },
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
-  { -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = {
-        'bash',
-        'c',
-        'diff',
-        'query',
-
-        'lua',
-        'luadoc',
-        'printf',
-        'vim',
-        'vimdoc',
-        'typescript',
-        'javascript',
-        'graphql',
-        'tsx',
-        'json',
-        'jsonc',
-        'yaml',
-        'xml',
-        'dockerfile',
-        'markdown',
-        'markdown_inline',
-        'html',
-        'css',
-        'hurl',
-        'http',
-        'tmux',
-        'bash',
-        'regex',
-        'rust',
-        'toml',
-        'dockerfile',
-        'python',
-        -- Go
-        'go',
-        'gomod',
-        'gosum',
-        'gowork',
-        -- csharp
-        'c_sharp',
-        'bicep',
-      },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = '<cr>',
-          node_incremental = '<cr>',
-          scope_incremental = false,
-          node_decremental = '<bs>',
-        },
-      },
-    },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-  },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
@@ -1346,12 +1265,14 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'plugins.lint',
+  require 'plugins.treesitter',
   require 'plugins.autopairs',
   require 'plugins.fugitive',
   require 'plugins.gitsigns', -- adds gitsigns recommend keymaps
   require 'plugins.nvim-surround',
   require 'plugins.smart-splits',
-  require 'plugins.diffview',
+  -- require 'plugins.diffview',
+  require 'plugins.codediff',
   require 'plugins.markview',
   require 'plugins.mini',
   -- require 'plugins.rest',
@@ -1373,6 +1294,7 @@ require('lazy').setup({
 
   require 'plugins.nvim-colorizer',
   require 'plugins.copilot',
+  require 'plugins.grug-far',
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the

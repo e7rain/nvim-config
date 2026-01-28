@@ -3,24 +3,19 @@ return {
   event = 'VeryLazy',
   dependencies = {
     'nvim-lua/plenary.nvim',
-    -- {
-    --   'ravitemer/mcphub.nvim',
-    --   dependencies = {
-    --     'nvim-lua/plenary.nvim',
-    --   },
-    --   build = 'npm install -g mcp-hub@latest',
-    --   config = function()
-    --     require('mcphub').setup {
-    --       global_env = {
-    --         -- vtex mcp
-    --         'BASE_URL',
-    --         'APP_KEY',
-    --         'APP_TOKEN',
-    --       },
-    --     }
-    --   end,
-    -- },
-    'franco-ruggeri/codecompanion-spinner.nvim',
+    'j-hui/fidget.nvim',
+    {
+      'ravitemer/mcphub.nvim',
+      dependencies = {
+        'nvim-lua/plenary.nvim',
+      },
+      build = 'npm install -g mcp-hub@latest',
+      config = function()
+        require('mcphub').setup {
+          global_env = {},
+        }
+      end,
+    },
   },
   keys = {
     -- stylua: ignore start
@@ -32,6 +27,9 @@ return {
   opts = {
     ignore_warnings = true,
     display = {
+      chat = {
+        intro_message = '',
+      },
       action_palette = {
         provider = 'snacks',
         opts = {
@@ -48,4 +46,8 @@ return {
     adapters = require 'plugins.codecompanion.adapters',
     strategies = require 'plugins.codecompanion.strategies',
   },
+  init = function()
+    require('plugins.codecompanion.fidget-spinner'):init()
+    vim.cmd [[cab cc CodeCompanion]]
+  end,
 }

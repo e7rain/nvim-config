@@ -3,7 +3,7 @@ return {
   event = 'VeryLazy',
   cmd = { 'TroubleToggle', 'Trouble' },
   config = function()
-    vim.keymap.set('n', '<leader>xx', '<cmd>Trouble diagnostics toggle filter.buf=0 focus=true<cr>', { noremap = true, silent = true })
+    vim.keymap.set('n', '<leader>x', '<cmd>Trouble diagnostics toggle filter.buf=0 focus=true<cr>', { noremap = true, silent = true })
     require('trouble').setup {
       close = 'q', -- close the list
       cancel = '<esc>', -- cancel the preview and get back to your last window / buffer / cursor
