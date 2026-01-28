@@ -1,3 +1,7 @@
+local ft = {
+  'http',
+}
+
 vim.filetype.add {
   extension = {
     ['http'] = 'http',
@@ -6,52 +10,19 @@ vim.filetype.add {
 
 return {
   'mistweaverco/kulala.nvim',
-  ft = { 'http', 'rest' },
+  ft = ft,
   keys = {
-    {
-      '<leader>rr',
-      function()
-        require('kulala').run()
-      end,
-      desc = 'Run request',
-    },
-    {
-      '<leader>ra',
-      function()
-        require('kulala').run_all()
-      end,
-      desc = 'Run all request',
-    },
-    {
-      '<leader>rc',
-      function()
-        require('kulala').copy()
-      end,
-      desc = 'Copy request to clipboard',
-    },
-    {
-      '<leader>rp',
-      function()
-        require('kulala').from_curl()
-      end,
-      desc = 'Paste request from curl',
-    },
-    {
-      '<leader>re',
-      function()
-        require('kulala').set_selected_env()
-      end,
-      desc = 'Set environment variables',
-    },
-    {
-      '<leader>rC',
-      function()
-        require('kulala').clear_cached_files()
-      end,
-      desc = 'Clear cache files',
-    },
+    -- stylua: ignore start
+    { '<leader>rr', function() require('kulala').run() end, desc = 'Run request', ft=ft },
+    { '<leader>ra', function() require('kulala').run_all() end, desc = 'Run all request', ft=ft },
+    { '<leader>rc', function() require('kulala').copy() end, desc = 'Copy request to clipboard', ft=ft },
+    { '<leader>rp', function() require('kulala').from_curl() end, desc = 'Paste request from curl', ft=ft },
+    { '<leader>re', function() require('kulala').set_selected_env() end, desc = 'Set environment variables', ft=ft },
+    { '<leader>rC', function() require('kulala').clear_cached_files() end, desc = 'Clear cache files', ft=ft },
+    -- stylua: ignore end
   },
   opts = {
+    debug = false,
     lsp = {
       filetypes = { 'http', 'rest', 'json', 'yaml', 'javascript' },
     },
@@ -60,7 +31,7 @@ return {
       max_response_size = 256000,
       win_opts = {
         wo = {
-          foldlevel = 1,
+          foldlevel = 99,
         },
       },
       icons = {
@@ -77,55 +48,16 @@ return {
     },
     global_keymaps = false,
     kulala_keymaps = {
-
-      ['Show headers'] = {
-        'H',
-        function()
-          require('kulala.ui').show_headers()
-        end,
-      },
-      ['Show body'] = {
-        'B',
-        function()
-          require('kulala.ui').show_body()
-        end,
-      },
-      ['Show headers and body'] = {
-        'A',
-        function()
-          require('kulala.ui').show_headers_body()
-        end,
-      },
-      ['Show verbose'] = {
-        'L',
-        function()
-          require('kulala.ui').show_verbose()
-        end,
-      },
-      ['Show script output'] = {
-        'O',
-        function()
-          require('kulala.ui').show_script_output()
-        end,
-      },
-      ['Show stats'] = {
-        'S',
-        function()
-          require('kulala.ui').show_stats()
-        end,
-      },
-      ['Show report'] = {
-        'R',
-        function()
-          require('kulala.ui').show_report()
-        end,
-      },
-      ['Show filter'] = {
-        'F',
-        function()
-          require('kulala.ui').toggle_filter()
-        end,
-      },
+    -- stylua: ignore start
+      ['Show headers'] = { 'H', function() require('kulala.ui').show_headers() end, },
+      ['Show body'] = { 'B', function() require('kulala.ui').show_body() end, },
+      ['Show headers and body'] = { 'A', function() require('kulala.ui').show_headers_body() end, },
+      ['Show verbose'] = { 'L', function() require('kulala.ui').show_verbose() end, },
+      ['Show script output'] = { 'O', function() require('kulala.ui').show_script_output() end, },
+      ['Show stats'] = { 'S', function() require('kulala.ui').show_stats() end, },
+      ['Show report'] = { 'R', function() require('kulala.ui').show_report() end, },
+      ['Show filter'] = { 'F', function() require('kulala.ui').toggle_filter() end, },
+      -- stylua: ignore end
     },
   },
 }

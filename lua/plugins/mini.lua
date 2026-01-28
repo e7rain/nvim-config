@@ -1,18 +1,33 @@
+local PickBuffers = function(opts)
+  local wipeout_cur = function()
+    vim.api.nvim_buf_delete(MiniPick.get_picker_matches().current.bufnr, {})
+  end
+  local buffer_mappings = { wipeout = { char = '<C-d>', func = wipeout_cur } }
+  MiniPick.builtin.buffers(local_opts, { mappings = buffer_mappings })
+  MiniPick.refresh()
+end
+
 return { -- Collection of various small independent plugins/modules
   'echasnovski/mini.nvim',
+  ---@format disable-next
+  keys = {
+    -- stylua: ignore start
+    { "<leader><leader>", PickBuffers, desc = "Buffers" },
+    { "<leader>fg", '<Cmd>Pick grep_live<cr>', desc = "Grep" },
+    { "<leader>fw", '<Cmd>Pick grep pattern="<cword>"<CR>', desc = "Grep [word]" },
+    { "<leader>ff", '<Cmd>Pick files<cr>', desc = "Find Files" },
+    { "<leader>fh", '<Cmd>Pick git_hunks path="%"<CR>', desc = "Modified hunks (buf)" },
+    -- stylua: ignore end
+  },
   config = function()
     vim.keymap.set('n', '-', function()
       local MiniFiles = require 'mini.files'
-      if not MiniFiles.close() then
-        local buf_name = vim.api.nvim_buf_get_name(0)
-        local path = vim.fn.filereadable(buf_name) == 1 and buf_name or vim.fn.getcwd()
-        MiniFiles.open(path)
-      end
-
+      local buf_name = vim.api.nvim_buf_get_name(0)
+      local path = vim.fn.filereadable(buf_name) == 1 and buf_name or vim.fn.getcwd()
+      MiniFiles.open(path)
       MiniFiles.reveal_cwd()
     end, { desc = 'open directory' })
 
-    -- Mini files
     local files = require 'mini.files'
     local map_split = function(buf_id, lhs, direction)
       local rhs = function()
@@ -26,23 +41,9 @@ return { -- Collection of various small independent plugins/modules
         files.set_target_window(new_target)
       end
 
-      -- Adding `desc` will result into `show_help` entries
       local desc = 'Split ' .. direction
       vim.keymap.set('n', lhs, rhs, { buffer = buf_id, desc = desc })
     end
-
-    -- vim.api.nvim_create_autocmd('User', {
-    --   pattern = 'MiniFilesWindowOpen',
-    --   callback = function(args)
-    --     local win_id = args.data.win_id
-    --
-    --     -- Customize window-local settings
-    --     -- vim.wo[win_id].winblend = 10
-    --     local config = vim.api.nvim_win_get_config(win_id)
-    --     -- config.border = 'solid'
-    --     vim.api.nvim_win_set_config(win_id, config)
-    --   end,
-    -- })
 
     vim.api.nvim_create_autocmd('User', {
       pattern = 'MiniFilesBufferCreate',
@@ -65,37 +66,26 @@ return { -- Collection of various small independent plugins/modules
       end,
     })
 
-    -- require('mini.pick').setup {}
+    require('mini.extra').setup {}
+    require('mini.bufremove').setup {}
+    require('mini.pick').setup {}
     require('mini.splitjoin').setup {}
-    require('mini.icons').setup {}
+    local ext3_blocklist = { scm = true, txt = true, yml = true }
+    local ext4_blocklist = { json = true, yaml = true }
+    require('mini.icons').setup {
+      use_file_extension = function(ext, _)
+        return not (ext3_blocklist[ext:sub(-3)] or ext4_blocklist[ext:sub(-4)])
+      end,
+    }
+
+    vim.ui.select = MiniPick.ui_select
+
     require('mini.files').setup {
-
-      -- Customization of shown content
-      content = {
-        -- Predicate for which file system entries to show
-        filter = nil,
-        -- What prefix to show to the left of file system entry
-        prefix = nil,
-        -- In which order to show file system entries
-        sort = nil,
-      },
-
-      -- Module mappings created only inside explorer.
-      -- Use `''` (empty string) to not create one.
       mappings = {
-        close = 'q',
         go_in = 'l',
         go_in_plus = '<CR>',
         go_out = '',
         go_out_plus = 'h',
-        mark_goto = "'",
-        mark_set = 'm',
-        reset = '~',
-        reveal_cwd = '_',
-        show_help = 'g?',
-        synchronize = '=',
-        trim_left = '<',
-        trim_right = '>',
       },
 
       -- General options
@@ -121,14 +111,6 @@ return { -- Collection of various small independent plugins/modules
       },
     }
 
-    -- Better Around/Inside textobjects
-    --
-    -- Examples:
-    --  - va)  - [V]isually select [A]round [)]paren
-    --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
-    --  - ci'  - [C]hange [I]nside [']quote
-    --
-
     require('mini.ai').setup {
       n_lines = 500,
     }
@@ -139,8 +121,10 @@ return { -- Collection of various small independent plugins/modules
     local statusline = require 'mini.statusline'
     -- set use_icons to true if you have a Nerd Font
     statusline.setup {
-      use_icons = vim.g.have_nerd_font,
+      use_icons = true,
     }
+
+    -- vim.api.nvim_set_hl(0, 'MiniStatuslineModeNormal', { link = 'StatusLine' }) -- Fix color issue koda theme
 
     -- You can configure sections in the statusline by overriding their
     -- default behavior. For example, here we set the section for

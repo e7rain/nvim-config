@@ -18,7 +18,7 @@ return {
       -- Ignored buffer types (only while resizing)
       ignored_buftypes = {
         'nofile',
-        'quickfix',
+        -- 'quickfix',
         'prompt',
       },
       -- Ignored filetypes (only while resizing)
@@ -96,7 +96,7 @@ return {
       -- automatically determined, unless explicitly disabled or set,
       -- by checking the $TERM_PROGRAM environment variable,
       -- and the $KITTY_LISTEN_ON environment variable for Kitty
-      multiplexer_integration = nil,
+      multiplexer_integration = 'tmux',
       -- disable multiplexer navigation if current multiplexer pane is zoomed
       -- this functionality is only supported on tmux and Wezterm due to kitty
       -- not having a way to check if a pane is zoomed

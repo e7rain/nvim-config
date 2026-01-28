@@ -1,31 +1,27 @@
 return {
-  cmd = { 'DiffviewOpen' },
+  lazy = false,
   'sindrets/diffview.nvim',
   keys = {
     -- stylua: ignore
-    { '<leader>gD', '<Cmd>DiffviewOpen<CR>', desc = '[D]iffview', },
+    { 'dv', function ()
+      if next(require("diffview.lib").views) == nil then
+        require("diffview").open()
+      else
+        require("diffview").close()
+      end
+    end, desc = '[D]iffview toggle', },
   },
-  hooks = {
-    diff_buf_read = function(bufnr)
-      vim.b[bufnr].view_activated = false
-    end,
+  opts = {
+    enhanced_diff_hl = true,
+    view = {
+      default = { winbar_info = true },
+      file_history = { winbar_info = true },
+    },
+    hooks = {
+      diff_buf_read = function(bufnr)
+        vim.b[bufnr].view_activated = false
+      end,
+    },
+    use_icons = true,
   },
-  config = function()
-    require('diffview').setup {
-      -- merge_tool = {
-      --   layout = 'diff3_mixed',
-      -- },
-      keymaps = {
-        view = {
-          ['q'] = '<Cmd>DiffviewClose<CR>',
-        },
-        option_panel = {
-          { 'n', 'q', '<Cmd>DiffviewClose<CR>', { desc = 'Close the panel' } },
-        },
-        file_panel = {
-          { 'n', 'q', '<Cmd>DiffviewClose<CR>', { desc = 'Close the panel' } },
-        },
-      },
-    }
-  end,
 }

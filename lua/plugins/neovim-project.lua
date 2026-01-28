@@ -18,7 +18,7 @@ return {
       '~/Workspace/itg-product-enhancer/packages/*',
     },
     picker = {
-      type = 'snacks',
+      -- type = 'snacks',
     },
   },
   init = function()
